@@ -9,8 +9,8 @@ CORS(app, origins=["https://escriptorium.inria.fr"])
 DB_PATH = Path("timing.db")
 
 
-def init_db():
-    """Create the SQLite database and table if they don’t exist."""
+def create_db():
+    """(Re)create the SQLite database and table."""
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS logs (
@@ -21,7 +21,7 @@ def init_db():
             )
         """)
         conn.commit()
-
+    print(f"✅ Database and table initialized at {DB_PATH.resolve()}")
 
 @app.route("/log", methods=["POST"])
 def log_entry():
@@ -48,6 +48,15 @@ def log_entry():
         conn.commit()
 
     return jsonify({"message": "Log saved", "timestamp": timestamp}), 201
+
+
+@app.cli.command("init-db")
+def init_db_command():
+    """
+    Initialize the database and create the 'logs' table.
+    Usage: flask init-db
+    """
+    create_db()
 
 
 @app.cli.command("export-csv")
