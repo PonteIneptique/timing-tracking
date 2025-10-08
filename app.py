@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import sqlite3
 from datetime import datetime
 from pathlib import Path
 
 app = Flask(__name__)
+CORS(app, origins=["https://escriptorium.inria.fr"])
 DB_PATH = Path("timing.db")
 
 
