@@ -50,6 +50,22 @@ def log_entry():
     return jsonify({"message": "Log saved", "timestamp": timestamp}), 201
 
 
+@app.cli.command("export-csv")
+def export_csv():
+    """
+    Export all logs from the SQLite database to 'logs_export.csv'.
+    Usage: flask export-csv
+    """
+    output_file = Path("logs_export.csv")
+    with sqlite3.connect(DB_PATH) as conn, open(output_file, "w", newline="") as f:
+        cursor = conn.execute("SELECT id, timestamp, uri, duration FROM logs ORDER BY id ASC")
+        writer = csv.writer(f)
+        writer.writerow([col[0] for col in cursor.description])  # header
+        writer.writerows(cursor.fetchall())
+
+    print(f"✅ Exported logs to {output_file.resolve()}")
+    
+
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
